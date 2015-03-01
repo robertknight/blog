@@ -1,0 +1,5 @@
+*.swp
+
+typings/
+node_modules/
+build/
