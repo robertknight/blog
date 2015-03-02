@@ -1,5 +1,5 @@
 {
-  "name": "react-blog",
+  "name": "robertknight.github.io",
   "version": "0.1.0",
   "description": "Static site blog built with React",
   "main": "index.js",
@@ -8,14 +8,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/robertknight/react-blog"
+    "url": "https://github.com/robertknight/blog"
   },
   "author": "Robert Knight <robertknight@gmail.com>",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/robertknight/react-blog/issues"
   },
-  "homepage": "https://github.com/robertknight/react-blog",
+  "homepage": "https://github.com/robertknight/blog",
   "dependencies": {
     "babel": "^4.6.1",
     "commander": "^2.6.0",

@@ -12,9 +12,32 @@ import path = require('path');
 import js_yaml = require('js-yaml');
 
 import post_view = require('./views/post');
+import post_list_view = require('./views/post_list');
 
 var Marked = require('marked');
 var react_tools = require('react-tools');
+
+interface SiteConfig {
+	outputDir: string;
+	title: string;
+	componentsDir: string;
+}
+
+function renderPage(title: string, content: string, root: string) {
+		var html = `
+<html>
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="${root}/theme.css">
+<title>${title}</title>
+</head>
+<body>
+${content}
+</body>
+</html>
+		`;
+	return html;
+}
 
 function convertMarkdownToReactJs(content: string) {
 	var jsx = marked(content.toString(), {});
@@ -33,6 +56,21 @@ function requiredComponentNames(contentSource: string) {
 		match = componentRegex.exec(contentSource);
 	}
 	return componentNames;
+}
+
+function extractSnippet(content: string) {
+	var idealLength = 400;
+	var snippet = '';
+	var paragraphs = content.split(/\n\s*\n/);
+	var paragraphIndex = 0;
+	while (snippet.length < idealLength && paragraphIndex < paragraphs.length) {
+		if (snippet.length == 0) {
+			snippet += '\n\n';
+		}
+		snippet += paragraphs[paragraphIndex];
+		++paragraphIndex;
+	}
+	return snippet;
 }
 
 function loadComponent(name: string, searchPaths: string[]): react.Component<any,any> {
@@ -64,12 +102,15 @@ function loadComponent(name: string, searchPaths: string[]): react.Component<any
 	}
 }
 
-function createPostComponent(renderSource: string, sourceDir: string) {
+// takes the JS source for an expression which returns a React Element
+// and evaluates it to create a React component with a render() function
+// which returns the result
+function reactComponentFromSource(renderSource: string, componentsDir: string) {
 	var componentNames = requiredComponentNames(renderSource);
 	var components: react.Component<any,any>[] = [];
 
 	var componentSearchPaths = [
-	  path.resolve(sourceDir + '/components'),
+	  path.resolve(componentsDir),
 	  path.resolve(path.resolve(__dirname) + '/components')
 	];
 
@@ -91,6 +132,7 @@ function createPostComponent(renderSource: string, sourceDir: string) {
 }
 
 interface PostMetadata {
+	slug: string;
 	title: string;
 	date: Date;
 	tags: string[];
@@ -101,14 +143,12 @@ interface PostContent {
 	body: string;
 }
 
-function parsePostContent(markdown: string) {
+function parsePostContent(filename: string, markdown: string) {
 	var yamlMatcher = /^\s*---\n([^]*)---\n/;
 	var yamlMatch = markdown.match(yamlMatcher);
 	if (!yamlMatch) {
 		throw new Error('Post is missing YAML metadata section');
 	}
-
-	console.log('yaml content', yamlMatch[1]);
 
 	var metadataDoc = js_yaml.safeLoad(yamlMatch[1]);
 	if (!metadataDoc.title) {
@@ -121,6 +161,7 @@ function parsePostContent(markdown: string) {
 	
 	return <PostContent>{
 		metadata: {
+			slug: path.basename(filename, '.md'),
 			title: metadataDoc.title,
 			date: new Date(metadataDoc.date),
 			tags: metadataDoc.tags.split(',').map((tag: string) => {
@@ -131,56 +172,76 @@ function parsePostContent(markdown: string) {
 	};
 }
 
-function generateBlog(dir: string) {
-	var siteDir = dir + '/_site';
-
-	// remove and re-create output dir
-	fs_extra.removeSync(siteDir);
-	fs_extra.ensureDirSync(siteDir);
-
-	// render posts to HTML
-	var postsDir = dir + '/posts';
-	var posts = fs.readdirSync(postsDir);
-	posts.forEach((filename) => {
+function fetchPosts(postsDir: string) {
+	var posts: PostContent[] = [];
+	var postSourceFiles = fs.readdirSync(postsDir);
+	postSourceFiles.forEach((filename) => {
 		var postFilePath = path.join(postsDir, filename);
 		var ext = path.extname(filename);
 		if (ext === '.md') {
-			var post = parsePostContent(fs.readFileSync(postFilePath).toString());
-			var contentJs = convertMarkdownToReactJs(post.body);
-			
-			var postComponent = createPostComponent(contentJs, dir);
-			var postElement = post_view.PostF({
-			  title: post.metadata.title,
-			  date: post.metadata.date,
-			  tags: post.metadata.tags
-			}, react.createElement(postComponent));
-			var pageContent = react.renderToString(postElement);
-
-			var html = `
-				<html>
-				<head>
-					<meta charset="UTF-8">
-					<link rel="stylesheet" href="theme.css">
-					<title>${post.metadata.title}</title>
-				</head>
-				<body>
-					${pageContent}
-				</body>
-				</html>
-			`;
-
-			// write out the HTML
-			fs.writeFileSync(siteDir + '/' + path.basename(filename, ext) + '.html', html);
+			posts.push(parsePostContent(postFilePath, fs.readFileSync(postFilePath).toString()));
 		}
 	});
+	return posts;
+}
 
-	// generate index
+function generateIndex(config: SiteConfig, posts: PostContent[]) {
+	var postList = post_list_view.PostListF({
+		posts: posts.map((post) => {
+			var snippetMarkdown = extractSnippet(post.body);
+			var snippetJs = convertMarkdownToReactJs(snippetMarkdown);
+			var snippetComponent = reactComponentFromSource(snippetJs, config.componentsDir);
 
-	// copy CSS
-	fs_extra.copy(path.resolve(__dirname) + '/theme.css', siteDir + '/theme.css', () => {});
+			return <post_list_view.PostListEntry>{
+				title: post.metadata.title,
+				date: post.metadata.date,
+				snippet: react.createElement(snippetComponent),
+				slug: post.metadata.slug
+			};
+		})
+	});
+	var content = react.renderToString(postList);
+	var page = renderPage(config.title, content, '.');
+	fs.writeFileSync(`${config.outputDir}/index.html`, page);
+}
 
-	// copy assets
-	fs_extra.copy(dir + '/assets', siteDir + '/assets', () => {});
+function generateBlog(dir: string) {
+	var configYaml = js_yaml.safeLoad(fs.readFileSync(dir + '/config.yml').toString());
+	var config = <SiteConfig>{
+		title: <string>configYaml.title,
+		outputDir: path.resolve(`${dir}/${<string>configYaml.outputDir || '_site'}`),
+		componentsDir: path.resolve(`${dir}/components`)
+	};
+
+	// remove and re-create output dir
+	fs_extra.removeSync(config.outputDir);
+	fs_extra.ensureDirSync(config.outputDir);
+
+	// render posts to HTML
+	var postsDir = dir + '/posts';
+	var posts = fetchPosts(postsDir);
+	posts.forEach((post) => {
+		var contentJs = convertMarkdownToReactJs(post.body);
+
+		var postComponent = reactComponentFromSource(contentJs, dir);
+		var postElement = post_view.PostF({
+			title: post.metadata.title,
+			date: post.metadata.date,
+			tags: post.metadata.tags
+		}, react.createElement(postComponent));
+		var pageContent = react.renderToString(postElement);
+		var html = renderPage(post.metadata.title, react.renderToString(postElement), '../');
+
+		var postDir = `${config.outputDir}/${post.metadata.slug}`;
+		fs_extra.ensureDirSync(postDir);
+		fs.writeFileSync(`${postDir}/index.html`, html);
+	});
+
+	generateIndex(config, posts);
+
+	// copy CSS and assets
+	fs_extra.copy(path.resolve(__dirname) + '/theme.css', `${config.outputDir}/theme.css`, () => {});
+	fs_extra.copy(dir + '/assets', `${config.outputDir}/assets`, () => {});
 }
 
 commander.version('0.1.0')
