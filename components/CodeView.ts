@@ -1,14 +1,14 @@
 import react = require('react');
 
 interface CodeViewProps {
-	code: string;
+	children: string;
 	language: string;
 }
 
 class CodeView extends react.Component<CodeViewProps,{}> {
 	render() {
 		return react.DOM.div({},
-			this.props.code
+			this.props.children
 		);
 	}
 }

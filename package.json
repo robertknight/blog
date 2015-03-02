@@ -19,7 +19,12 @@
   "dependencies": {
     "babel": "^4.6.1",
     "commander": "^2.6.0",
-    "react": "^0.13.0-rc1"
+    "fs-extra": "^0.16.3",
+    "js-yaml": "^3.2.7",
+    "marked": "^0.3.3",
+    "react": "^0.13.0-rc1",
+    "react-tools": "^0.13.0-rc1",
+    "ts-style": "^0.4.1"
   },
   "devDependencies": {
     "tsd": "^0.6.0-beta.5"
