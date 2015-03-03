@@ -3,6 +3,10 @@ a {
 	color: rgba(0,0,0,0.87);
 }
 
+a:active {
+	outline: none;
+}
+
 body {
 	color: rgba(0,0,0,0.87);
 	font-family: 'Ubuntu';

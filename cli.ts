@@ -21,6 +21,8 @@ interface SiteConfig {
 	outputDir: string;
 	title: string;
 	componentsDir: string;
+
+	rootUrl: string;
 }
 
 function renderPage(title: string, content: string, root: string) {
@@ -143,6 +145,10 @@ interface PostContent {
 	body: string;
 }
 
+function postUrl(config: SiteConfig, post: PostMetadata) {
+	return `${config.rootUrl}/posts/${post.slug}`;
+}
+
 function parsePostContent(filename: string, markdown: string) {
 	var yamlMatcher = /^\s*---\n([^]*)---\n/;
 	var yamlMatch = markdown.match(yamlMatcher);
@@ -172,6 +178,14 @@ function parsePostContent(filename: string, markdown: string) {
 	};
 }
 
+function cleanDir(dir: string) {
+	var files = fs.readdirSync(dir);
+	files.forEach((file) => {
+		var filePath = path.resolve(`${dir}/${file}`);
+		fs_extra.removeSync(filePath);
+	});
+}
+
 function fetchPosts(postsDir: string) {
 	var posts: PostContent[] = [];
 	var postSourceFiles = fs.readdirSync(postsDir);
@@ -185,7 +199,28 @@ function fetchPosts(postsDir: string) {
 	return posts;
 }
 
-function generateIndex(config: SiteConfig, posts: PostContent[]) {
+function generateTagIndexes(config: SiteConfig, posts: PostContent[]) {
+	var tagMap: {[tag:string]: PostContent[]} = {};
+	posts.forEach((post) => {
+		post.metadata.tags.forEach((tag) => {
+			if (!tagMap[tag]) {
+				tagMap[tag] = [];
+			}
+			tagMap[tag].push(post);
+		});
+	});
+
+	Object.keys(tagMap).sort().forEach((tag) => {
+		var taggedPosts = tagMap[tag];
+		var content = react.renderToString(createPostList(config, taggedPosts));
+		var page = renderPage(`${tag} - ${config.title}`, content, config.rootUrl);
+		var tagPageDir = `${config.outputDir}/posts/tagged/${tag}`;
+		fs_extra.ensureDirSync(tagPageDir);
+		fs.writeFileSync(`${tagPageDir}/index.html`, page);
+	});
+}
+
+function createPostList(config: SiteConfig, posts: PostContent[]) {
 	var postList = post_list_view.PostListF({
 		posts: posts.map((post) => {
 			var snippetMarkdown = extractSnippet(post.body);
@@ -196,12 +231,16 @@ function generateIndex(config: SiteConfig, posts: PostContent[]) {
 				title: post.metadata.title,
 				date: post.metadata.date,
 				snippet: react.createElement(snippetComponent),
-				slug: post.metadata.slug
+				url: postUrl(config, post.metadata)
 			};
 		})
 	});
-	var content = react.renderToString(postList);
-	var page = renderPage(config.title, content, '.');
+	return postList;
+}
+
+function generateIndex(config: SiteConfig, posts: PostContent[]) {
+	var content = react.renderToString(createPostList(config, posts));
+	var page = renderPage(config.title, content, config.rootUrl);
 	fs.writeFileSync(`${config.outputDir}/index.html`, page);
 }
 
@@ -210,34 +249,43 @@ function generateBlog(dir: string) {
 	var config = <SiteConfig>{
 		title: <string>configYaml.title,
 		outputDir: path.resolve(`${dir}/${<string>configYaml.outputDir || '_site'}`),
-		componentsDir: path.resolve(`${dir}/components`)
+		componentsDir: path.resolve(`${dir}/components`),
+		rootUrl: <string>configYaml.rootUrl || ''
 	};
 
 	// remove and re-create output dir
-	fs_extra.removeSync(config.outputDir);
 	fs_extra.ensureDirSync(config.outputDir);
+	cleanDir(config.outputDir);
 
 	// render posts to HTML
 	var postsDir = dir + '/posts';
 	var posts = fetchPosts(postsDir);
 	posts.forEach((post) => {
 		var contentJs = convertMarkdownToReactJs(post.body);
+		var url = postUrl(config, post.metadata);
 
 		var postComponent = reactComponentFromSource(contentJs, dir);
 		var postElement = post_view.PostF({
 			title: post.metadata.title,
 			date: post.metadata.date,
-			tags: post.metadata.tags
+			tags: post.metadata.tags.map((tag) => {
+				return {
+					tag: tag,
+					indexUrl: `${config.rootUrl}/posts/tagged/${tag}`
+				};
+			}),
+			url: url
 		}, react.createElement(postComponent));
 		var pageContent = react.renderToString(postElement);
-		var html = renderPage(post.metadata.title, react.renderToString(postElement), '../');
+		var html = renderPage(post.metadata.title, react.renderToString(postElement), config.rootUrl);
 
-		var postDir = `${config.outputDir}/${post.metadata.slug}`;
-		fs_extra.ensureDirSync(postDir);
-		fs.writeFileSync(`${postDir}/index.html`, html);
+		var postOutputDir = `${config.outputDir}/${url}`;
+		fs_extra.ensureDirSync(postOutputDir);
+		fs.writeFileSync(`${postOutputDir}/index.html`, html);
 	});
 
 	generateIndex(config, posts);
+	generateTagIndexes(config, posts);
 
 	// copy CSS and assets
 	fs_extra.copy(path.resolve(__dirname) + '/theme.css', `${config.outputDir}/theme.css`, () => {});

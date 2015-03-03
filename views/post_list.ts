@@ -1,6 +1,8 @@
 import react = require('react');
 import style = require('ts-style');
 
+import typography = require('../theme/typography');
+
 var theme = style.create({
 	postList: {
 		maxWidth: 600,
@@ -10,17 +12,17 @@ var theme = style.create({
 
 		entry: {
 			title: {
+				mixins: [typography.theme.fonts.title],
+
 				display: 'block',
-				fontWeight: 700,
-				fontSize: 24,
 				textDecoration: 'none',
 				marginBottom: 5
 			},
 			date: {
-				color: 'rgba(0,0,0,0.76)'
+				mixins: [typography.theme.fonts.date]
 			},
 			snippet: {
-				lineHeight: 1.8
+				mixins: [typography.theme.fonts.articleBody]
 			}
 		},
 
@@ -31,7 +33,18 @@ var theme = style.create({
 		},
 
 		readMoreLink: {
-			textDecoration: 'none'
+			display: 'inline-block',
+			textDecoration: 'none',
+			borderRadius: 10,
+			border: '1px solid #ccc',
+			padding: 5,
+			paddingLeft: 15,
+			paddingRight: 15,
+			transition: 'background-color .2s ease-in',
+
+			':hover': {
+				backgroundColor: '#eee',
+			}
 		}
 	}
 });
@@ -40,7 +53,7 @@ export interface PostListEntry {
 	title: string;
 	date: Date;
 	snippet: react.ReactNode;
-	slug: string;
+	url: string;
 }
 
 interface PostListProps {
@@ -59,13 +72,13 @@ export class PostList extends react.Component<PostListProps,{}> {
 				key: post.title
 			}),
 				react.DOM.a(style.mixin(theme.postList.entry.title, {
-					href: post.slug
+					href: post.url
 				}), post.title),
 				react.DOM.div(style.mixin(theme.postList.entry.date), post.date.toDateString()),
 				react.DOM.div(style.mixin(theme.postList.entry.snippet), post.snippet),
 				react.DOM.a(style.mixin(theme.postList.readMoreLink, {
-					href: post.slug
-				}), 'Continue Reading...')
+					href: post.url
+				}), 'Continue reading →')
 			);
 		});
 
