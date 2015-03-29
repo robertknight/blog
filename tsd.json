@@ -31,6 +31,9 @@
     },
     "js-yaml/js-yaml.d.ts": {
       "commit": "3882d337bb0808cde9fe4c08012508a48c135482"
+    },
+    "react-router/react-router.d.ts": {
+      "commit": "5de63fd3d8c36b25366e85bc9e4b6e86d7738fec"
     }
   }
 }
