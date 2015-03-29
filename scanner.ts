@@ -138,7 +138,7 @@ interface PostMetadata {
 	tags: string[];
 }
 
-interface PostContent {
+export interface PostContent {
 	metadata: PostMetadata;
 	body: string;
 }
@@ -189,6 +189,10 @@ function fetchPosts(postsDir: string) {
 	return posts;
 }
 
+export interface TagMap {
+	[tag: string]: PostContent[];
+}
+
 export function generateTagMap(posts: PostContent[]) {
 	var tagMap: {[tag:string]: PostContent[]} = {};
 	posts.forEach((post) => {
@@ -206,7 +210,7 @@ function generateTagIndexes(config: SiteConfig, posts: PostContent[]) {
 	var tagMap = generateTagMap(posts);
 	Object.keys(tagMap).sort().forEach((tag) => {
 		var taggedPosts = tagMap[tag];
-		var content = react.renderToString(createPostList(config, taggedPosts));
+		var content = react.renderToString(createPostListComponent(config, taggedPosts));
 		var page = renderPage(`${tag} - ${config.title}`, content, config.rootUrl);
 		var tagPageDir = `${config.outputDir}/posts/tagged/${tag}`;
 		fs_extra.ensureDirSync(tagPageDir);
@@ -214,26 +218,42 @@ function generateTagIndexes(config: SiteConfig, posts: PostContent[]) {
 	});
 }
 
+export interface PostListEntry {
+	title: string;
+	date: Date;
+	snippetSource: string;
+	url: string;
+}
+
 function createPostList(config: SiteConfig, posts: PostContent[]) {
-	var postList = post_list_view.PostListF({
-		posts: posts.map((post) => {
+	return posts.map((post) => {
 			var snippetMarkdown = extractSnippet(post.body);
 			var snippetJs = convertMarkdownToReactJs(snippetMarkdown);
-			var snippetComponent = reactComponentFromSource(snippetJs, config.componentsDir);
-
-			return <post_list_view.PostListEntry>{
+			return <PostListEntry>{
 				title: post.metadata.title,
 				date: post.metadata.date,
-				snippet: react.createElement(snippetComponent),
+				snippetSource: snippetJs,
 				url: postUrl(config, post.metadata)
+			};
+		});
+}
+
+function createPostListComponent(config: SiteConfig, posts: PostContent[]) {
+	return post_list_view.PostListF({
+		posts: createPostList(config, posts).map(post => {
+			var snippetComponent = reactComponentFromSource(post.snippetSource, config.componentsDir);
+			return {
+				title: post.title,
+				date: post.date,
+				snippet: snippetComponent,
+				url: post.url
 			};
 		})
 	});
-	return postList;
 }
 
 function generateIndex(config: SiteConfig, posts: PostContent[]) {
-	var content = react.renderToString(createPostList(config, posts));
+	var content = react.renderToString(createPostListComponent(config, posts));
 	var page = renderPage(config.title, content, config.rootUrl);
 	fs.writeFileSync(`${config.outputDir}/index.html`, page);
 }

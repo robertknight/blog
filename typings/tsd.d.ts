@@ -14,3 +14,7 @@ declare module 'mustache' {
 	export = Mustache;
 }
 
+declare module 'object-assign' {
+	function assign<T>(input: Object, ...updates: Object[]): T;
+	export = assign;
+}
