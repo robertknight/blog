@@ -1,5 +1,5 @@
 *.swp
 
-typings/
+typings/DefinitelyTyped
 node_modules/
 build/

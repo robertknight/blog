@@ -2,21 +2,9 @@
   "version": "v4",
   "repo": "borisyankov/DefinitelyTyped",
   "ref": "master",
-  "path": "typings",
+  "path": "typings/DefinitelyTyped",
   "bundle": "typings/tsd.d.ts",
   "installed": {
-    "react/future/react-0.13.0.d.ts": {
-      "commit": "3882d337bb0808cde9fe4c08012508a48c135482"
-    },
-    "react/future/react-addons-0.13.0.d.ts": {
-      "commit": "3882d337bb0808cde9fe4c08012508a48c135482"
-    },
-    "react/future/react-addons-global-0.13.0.d.ts": {
-      "commit": "3882d337bb0808cde9fe4c08012508a48c135482"
-    },
-    "react/future/react-global-0.13.0.d.ts": {
-      "commit": "3882d337bb0808cde9fe4c08012508a48c135482"
-    },
     "commander/commander.d.ts": {
       "commit": "3882d337bb0808cde9fe4c08012508a48c135482"
     },
@@ -34,6 +22,12 @@
     },
     "react-router/react-router.d.ts": {
       "commit": "5de63fd3d8c36b25366e85bc9e4b6e86d7738fec"
+    },
+    "react/react.d.ts": {
+      "commit": "fbb8c672d56d1cfe677b81c300f8506a31e0404c"
+    },
+    "mustache/mustache.d.ts": {
+      "commit": "fbb8c672d56d1cfe677b81c300f8506a31e0404c"
     }
   }
 }
