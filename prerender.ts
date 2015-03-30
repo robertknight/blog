@@ -7,46 +7,78 @@ import react = require('react');
 import react_router = require('react-router');
 
 import fs_util = require('./fs_util');
+import post_view = require('./views/post');
 import routes = require('./routes');
 import scanner = require('./scanner');
 
 class DataSource implements routes.AppDataSource {
+	private config: scanner.SiteConfig;
 	private posts: scanner.PostContent[];
 	private tags: scanner.TagMap;
 
-	constructor(posts: scanner.PostContent[], tags: scanner.TagMap) {
+	constructor(config: scanner.SiteConfig, posts: scanner.PostContent[], tags: scanner.TagMap) {
+		this.config = config;
 		this.posts = posts;
 		this.tags = tags;
 	}
 
+	private convertPostExtract(post: scanner.PostContent) {
+		var snippetMarkdown = scanner.extractSnippet(post.body);
+		var snippetJs = scanner.convertMarkdownToReactJs(snippetMarkdown);
+		var snippetComponent = scanner.reactComponentFromSource(snippetJs, this.config.componentsDir);
+
+		return {
+			title: post.metadata.title,
+			date: post.metadata.date,
+			snippet: react.createElement(snippetComponent),
+			url: scanner.postUrl(this.config, post.metadata)
+		};
+	}
+
+	private convertPost(post: scanner.PostContent): post_view.PostProps {
+		var contentJs = scanner.convertMarkdownToReactJs(post.body);
+		var url = scanner.postUrl(this.config, post.metadata);
+		var postComponent = scanner.reactComponentFromSource(contentJs, this.config.inputDir);
+		return {
+			title: post.metadata.title,
+			date: post.metadata.date,
+			tags: post.metadata.tags.map(tag => {
+				return {
+					tag: tag,
+					indexUrl: `${this.config.rootUrl}/posts/tagged/${tag}`
+				}
+			}),
+			url: scanner.postUrl(this.config, post.metadata),
+			children: [react.createElement(postComponent, {key:'post'})]
+		};
+	}
+
 	recentPosts(count: number) {
-		return this.posts.map(post => {
-			return {
-				title: post.metadata.title,
-			  	date: post.metadata.date,
-			   	snippet: 'snippet'
-			}
-		});
+		return this.posts.map(post => this.convertPostExtract(post));
 	}
 
 	taggedPosts(tag: string) {
-		return this.tags[tag].map(entry => {
-			return {
-				title: entry.metadata.title
-			}
-		});
+		return this.tags[tag].map(post => this.convertPostExtract(post));
 	}
 
 	fetchPost(id: string) {
 		var matches = this.posts.filter(post => post.metadata.slug === id);
 		if (matches.length > 0) {
-			return {
-				title: matches[0].metadata.title,
-				body: matches[0].body
-			}
+			return this.convertPost(matches[0]);
 		} else {
 			return null;
 		}
+	}
+
+	fetchBannerInfo() {
+		return {
+			name: this.config.title,
+			photoUrl: 'http://www.gravatar.com/someurl',
+			socialLinks: {
+				twitter: 'joebloggs',
+				github: 'joebloggs'
+			}
+		};
 	}
 }
 
@@ -54,7 +86,7 @@ interface AppRouteStatic {
 	fetchData?(model: routes.AppDataSource, params: Object): Object;
 }
 
-function prerenderRoute(route: string, outputDir: string, data: routes.AppDataSource) {
+function prerenderRoute(config: scanner.SiteConfig, route: string, outputDir: string, data: routes.AppDataSource) {
 	console.log(`pre-rendering ${route} to ${outputDir}`);
 	var template = fs.readFileSync('index.html').toString();
 	react_router.run(<react_router.Route>routes.rootRoute, route, (handler, state) => {
@@ -79,8 +111,8 @@ function prerenderRoute(route: string, outputDir: string, data: routes.AppDataSo
 		var html = mustache.render(template, {
 			title: 'Page Title',
 			body: body,
-			appTheme: 'theme.css',
-			appScript: 'app.js'
+			appTheme: `${config.rootUrl}/theme.css`,
+			appScript: `${config.rootUrl}/app.js`
 		});
 		fs_extra.ensureDirSync(outputDir);
 		fs.writeFileSync(`${outputDir}/index.html`, html);
@@ -108,9 +140,9 @@ export function generateBlog(dir: string) {
 		prerenderedRoutes.push(`/posts/tagged/${tag}`);
 	});
 
-	var dataSource = new DataSource(posts, tags);
+	var dataSource = new DataSource(config, posts, tags);
 	prerenderedRoutes.forEach(route => {
-		prerenderRoute(route, config.outputDir + route, dataSource);
+		prerenderRoute(config, route, config.outputDir + route, dataSource);
 	});
 
 	// copy CSS and assets

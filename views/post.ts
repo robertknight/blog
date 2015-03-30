@@ -57,11 +57,11 @@ var theme = style.create({
 	}
 });
 
-interface PostProps {
+export interface PostProps {
 	title: string;
 	date: Date;
 	url: string;
-	children?: react.ReactElement<{}>[];
+	children?: react.ReactNode[];
 	tags: {
 		tag: string;
 		indexUrl: string;
@@ -107,7 +107,8 @@ export class Post extends react.Component<PostProps,{}> {
 		return react.DOM.div(style.mixin(theme.post.tagList),
 			this.props.tags.map((tagEntry) => {
 				return react.DOM.a(style.mixin(theme.post.tagList.tag, {
-					href: tagEntry.indexUrl
+					href: tagEntry.indexUrl,
+					key: `tag-${tagEntry.tag}`,
 				}), tagEntry.tag);
 			})
 		);

@@ -16,12 +16,12 @@ var theme = style.create({
 
 });
 
-interface SocialLinks {
+export interface SocialLinks {
 	twitter: string;
 	github: string;
 }
 
-interface BannerProps {
+export interface BannerProps {
 	name: string;
 	photoUrl: string;
 	socialLinks: SocialLinks;
@@ -42,12 +42,18 @@ export class Banner extends react.Component<BannerProps, {}> {
 	render() {
 		var socialLinks: react.ReactNode[] = [];
 		if (this.props.socialLinks.twitter) {
-			socialLinks.push(react.DOM.a({href: twitterUrl(this.props.socialLinks.twitter)},
+			socialLinks.push(react.DOM.a({
+				href: twitterUrl(this.props.socialLinks.twitter),
+				key: 'twitter'
+			},
 				`@${this.props.socialLinks.twitter}`
 			));
 		}
 		if (this.props.socialLinks.github) {
-			socialLinks.push(react.DOM.a({href: githubUrl(this.props.socialLinks.github)}),
+			socialLinks.push(react.DOM.a({
+				href: githubUrl(this.props.socialLinks.github),
+				key: 'github'
+			}),
 				'GitHub'
 			);
 		}
@@ -59,4 +65,6 @@ export class Banner extends react.Component<BannerProps, {}> {
 		);
 	}
 }
+
+export var BannerF = react.createFactory(Banner);
 

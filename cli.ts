@@ -9,5 +9,4 @@ commander.version('0.1.0')
          .usage('[options] <dir>');
 commander.parse(process.argv);
 
-//scanner.generateBlog(commander.args[0]);
 prerender.generateBlog(commander.args[0]);

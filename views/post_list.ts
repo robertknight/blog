@@ -56,7 +56,7 @@ export interface PostListEntry {
 	url: string;
 }
 
-interface PostListProps {
+export interface PostListProps {
 	posts: PostListEntry[];
 }
 

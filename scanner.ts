@@ -14,7 +14,7 @@ import post_list_view = require('./views/post_list');
 var Marked = require('marked');
 var react_tools = require('react-tools');
 
-interface SiteConfig {
+export interface SiteConfig {
 	inputDir: string;
 	outputDir: string;
 	title: string;
@@ -39,7 +39,7 @@ ${content}
 	return html;
 }
 
-function convertMarkdownToReactJs(content: string) {
+export function convertMarkdownToReactJs(content: string) {
 	var jsx = marked(content.toString(), {});
 	jsx = '<div>' + jsx + '</div>';
 	var js = 'return ' + react_tools.transform(jsx);
@@ -58,7 +58,7 @@ function requiredComponentNames(contentSource: string) {
 	return componentNames;
 }
 
-function extractSnippet(content: string) {
+export function extractSnippet(content: string) {
 	var idealLength = 400;
 	var snippet = '';
 	var paragraphs = content.split(/\n\s*\n/);
@@ -105,7 +105,7 @@ function loadComponent(name: string, searchPaths: string[]): react.Component<any
 // takes the JS source for an expression which returns a React Element
 // and evaluates it to create a React component with a render() function
 // which returns the result
-function reactComponentFromSource(renderSource: string, componentsDir: string) {
+export function reactComponentFromSource(renderSource: string, componentsDir: string) {
 	var componentNames = requiredComponentNames(renderSource);
 	var components: react.Component<any,any>[] = [];
 
@@ -131,7 +131,7 @@ function reactComponentFromSource(renderSource: string, componentsDir: string) {
 	return postComponent;
 }
 
-interface PostMetadata {
+export interface PostMetadata {
 	slug: string;
 	title: string;
 	date: Date;
@@ -143,7 +143,7 @@ export interface PostContent {
 	body: string;
 }
 
-function postUrl(config: SiteConfig, post: PostMetadata) {
+export function postUrl(config: SiteConfig, post: PostMetadata) {
 	return `${config.rootUrl}/posts/${post.slug}`;
 }
 
