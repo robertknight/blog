@@ -1,15 +1,10 @@
 /// <reference path="typings/tsd.d.ts" />
 
 import fs = require('fs');
-import fs_extra = require('fs-extra');
 import marked = require('marked');
 import react = require('react');
 import path = require('path');
 import js_yaml = require('js-yaml');
-
-import fs_util = require('./fs_util');
-import post_view = require('./views/post');
-import post_list_view = require('./views/post_list');
 
 var Marked = require('marked');
 var react_tools = require('react-tools');
@@ -21,22 +16,6 @@ export interface SiteConfig {
 	componentsDir: string;
 
 	rootUrl: string;
-}
-
-function renderPage(title: string, content: string, root: string) {
-		var html = `
-<html>
-<head>
-<meta charset="UTF-8">
-<link rel="stylesheet" href="${root}/theme.css">
-<title>${title}</title>
-</head>
-<body>
-${content}
-</body>
-</html>
-		`;
-	return html;
 }
 
 export function convertMarkdownToReactJs(content: string) {
@@ -206,56 +185,11 @@ export function generateTagMap(posts: PostContent[]) {
 	return tagMap;
 }
 
-function generateTagIndexes(config: SiteConfig, posts: PostContent[]) {
-	var tagMap = generateTagMap(posts);
-	Object.keys(tagMap).sort().forEach((tag) => {
-		var taggedPosts = tagMap[tag];
-		var content = react.renderToString(createPostListComponent(config, taggedPosts));
-		var page = renderPage(`${tag} - ${config.title}`, content, config.rootUrl);
-		var tagPageDir = `${config.outputDir}/posts/tagged/${tag}`;
-		fs_extra.ensureDirSync(tagPageDir);
-		fs.writeFileSync(`${tagPageDir}/index.html`, page);
-	});
-}
-
 export interface PostListEntry {
 	title: string;
 	date: Date;
 	snippetSource: string;
 	url: string;
-}
-
-function createPostList(config: SiteConfig, posts: PostContent[]) {
-	return posts.map((post) => {
-			var snippetMarkdown = extractSnippet(post.body);
-			var snippetJs = convertMarkdownToReactJs(snippetMarkdown);
-			return <PostListEntry>{
-				title: post.metadata.title,
-				date: post.metadata.date,
-				snippetSource: snippetJs,
-				url: postUrl(config, post.metadata)
-			};
-		});
-}
-
-function createPostListComponent(config: SiteConfig, posts: PostContent[]) {
-	return post_list_view.PostListF({
-		posts: createPostList(config, posts).map(post => {
-			var snippetComponent = reactComponentFromSource(post.snippetSource, config.componentsDir);
-			return {
-				title: post.title,
-				date: post.date,
-				snippet: snippetComponent,
-				url: post.url
-			};
-		})
-	});
-}
-
-function generateIndex(config: SiteConfig, posts: PostContent[]) {
-	var content = react.renderToString(createPostListComponent(config, posts));
-	var page = renderPage(config.title, content, config.rootUrl);
-	fs.writeFileSync(`${config.outputDir}/index.html`, page);
 }
 
 export function readConfig(dir: string) {
@@ -275,44 +209,3 @@ export function readPosts(config: SiteConfig) {
 	return fetchPosts(postsDir);
 }
 
-export function generateBlog(dir: string) {
-	var config = readConfig(dir);
-
-	// remove and re-create output dir
-	fs_extra.ensureDirSync(config.outputDir);
-	fs_util.cleanDir(config.outputDir);
-
-	// render posts to HTML
-	var posts = readPosts(config);
-	
-	posts.forEach((post) => {
-		var contentJs = convertMarkdownToReactJs(post.body);
-		var url = postUrl(config, post.metadata);
-
-		var postComponent = reactComponentFromSource(contentJs, dir);
-		var postElement = post_view.PostF({
-			title: post.metadata.title,
-			date: post.metadata.date,
-			tags: post.metadata.tags.map((tag) => {
-				return {
-					tag: tag,
-					indexUrl: `${config.rootUrl}/posts/tagged/${tag}`
-				};
-			}),
-			url: url
-		}, react.createElement(postComponent));
-		var pageContent = react.renderToString(postElement);
-		var html = renderPage(post.metadata.title, react.renderToString(postElement), config.rootUrl);
-
-		var postOutputDir = `${config.outputDir}/${url}`;
-		fs_extra.ensureDirSync(postOutputDir);
-		fs.writeFileSync(`${postOutputDir}/index.html`, html);
-	});
-
-	generateIndex(config, posts);
-	generateTagIndexes(config, posts);
-
-	// copy CSS and assets
-	fs_extra.copy(path.resolve(__dirname) + '/theme.css', `${config.outputDir}/theme.css`, () => {});
-	fs_extra.copy(dir + '/assets', `${config.outputDir}/assets`, () => {});
-}
