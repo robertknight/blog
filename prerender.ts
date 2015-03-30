@@ -6,6 +6,7 @@ import path = require('path');
 import react = require('react');
 import react_router = require('react-router');
 
+import components = require('./components');
 import fs_util = require('./fs_util');
 import post_view = require('./views/post');
 import routes = require('./routes');
@@ -24,8 +25,8 @@ class DataSource implements routes.AppDataSource {
 
 	private convertPostExtract(post: scanner.PostContent) {
 		var snippetMarkdown = scanner.extractSnippet(post.body);
-		var snippetJs = scanner.convertMarkdownToReactJs(snippetMarkdown);
-		var snippetComponent = scanner.reactComponentFromSource(snippetJs, this.config.componentsDir);
+		var snippetJs = components.convertMarkdownToReactJs(snippetMarkdown);
+		var snippetComponent = components.reactComponentFromSource(snippetJs, this.config.componentsDir);
 
 		return {
 			title: post.metadata.title,
@@ -36,9 +37,8 @@ class DataSource implements routes.AppDataSource {
 	}
 
 	private convertPost(post: scanner.PostContent): post_view.PostProps {
-		var contentJs = scanner.convertMarkdownToReactJs(post.body);
-		var url = scanner.postUrl(this.config, post.metadata);
-		var postComponent = scanner.reactComponentFromSource(contentJs, this.config.inputDir);
+		var contentJs = components.convertMarkdownToReactJs(post.body);
+		var postComponent = components.reactComponentFromSource(contentJs, this.config.inputDir);
 		return {
 			title: post.metadata.title,
 			date: post.metadata.date,
