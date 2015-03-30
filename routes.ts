@@ -1,3 +1,4 @@
+import assign = require('object-assign');
 import react = require('react');
 import react_router = require('react-router');
 
@@ -10,6 +11,31 @@ export interface AppDataSource {
 	taggedPosts(tag: string): post_list_view.PostListEntry[];
 	fetchPost(id: string): post_view.PostProps;
 	fetchBannerInfo(): banner_view.BannerProps;
+}
+
+export interface AppRouteStatic {
+	fetchData?(model: AppDataSource, params: Object): Object;
+}
+
+export function fetchRouteProps(data: AppDataSource, state: react_router.RouterState) {
+	// gather all of the data that this route requires
+	var routeData = {
+		params: state.params,
+		title: ''
+	};
+
+	state.routes.forEach(route => {
+		var handler: AppRouteStatic = (<any>route).handler;
+		if (handler.fetchData) {
+			// currently assumes that fetchData() returns a result
+			// immediately. In future we may want to expand this
+			// to allow promises
+			var result = handler.fetchData(data, state.params);
+			assign(routeData, result);
+		}
+	});
+
+	return routeData;
 }
 
 interface BlogRouteProps {
