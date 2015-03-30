@@ -18,8 +18,10 @@ interface BlogRouteProps {
 
 class BlogRoute extends react.Component<BlogRouteProps,{}> {
 	static fetchData(model: AppDataSource) {
+		var bannerInfo = model.fetchBannerInfo();
 		return {
-			banner: model.fetchBannerInfo()
+			title: bannerInfo.name,
+			banner: bannerInfo
 		}
 	}
 
@@ -40,9 +42,12 @@ interface PostRouteProps extends react_router.RouteProp {
 
 class PostRoute extends react.Component<PostRouteProps,{}> {
 	static fetchData(model: AppDataSource, params: {postId: string}) {
+		var post = model.fetchPost(params.postId);
+
 		return {
-			post: model.fetchPost(params.postId)
-		}
+			title: post.title,
+			post: post
+		};
 	}
 
 	render() {
@@ -78,6 +83,7 @@ interface TaggedPostsRouteProps {
 class TaggedPostsRoute extends react.Component<TaggedPostsRouteProps,{}> {
 	static fetchData(model: AppDataSource, params: {tag: string}) {
 		return {
+			title: `Posts tagged ${params.tag}`,
 			posts: model.taggedPosts(params.tag)
 		};
 	}

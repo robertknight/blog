@@ -92,7 +92,8 @@ function prerenderRoute(config: scanner.SiteConfig, route: string, outputDir: st
 	react_router.run(<react_router.Route>routes.rootRoute, route, (handler, state) => {
 		// gather all of the data that this route requires
 		var routeData = {
-			params: state.params
+			params: state.params,
+			title: config.title
 		};
 
 		state.routes.forEach(route => {
@@ -109,7 +110,7 @@ function prerenderRoute(config: scanner.SiteConfig, route: string, outputDir: st
 		// render route
 		var body = react.renderToString(react.createElement(handler, routeData));
 		var html = mustache.render(template, {
-			title: 'Page Title',
+			title: routeData.title,
 			body: body,
 			appTheme: `${config.rootUrl}/theme.css`,
 			appScript: `${config.rootUrl}/app.js`
