@@ -71,18 +71,18 @@ class DataSource implements routes.AppDataSource {
 
 	fetchBannerInfo() {
 		return {
-			name: this.config.title,
-			photoUrl: 'http://www.gravatar.com/someurl',
+			name: this.config.author.name,
+			photoUrl: this.config.author.photoUrl,
 			socialLinks: {
-				twitter: 'joebloggs',
-				github: 'joebloggs'
+				twitter: this.config.author.twitterId,
+				github: this.config.author.githubId
 			}
 		};
 	}
 }
 
 function prerenderRoute(config: scanner.SiteConfig, route: string, outputDir: string, data: routes.AppDataSource) {
-	console.log(`pre-rendering ${route} to ${outputDir}`);
+	console.log(`Creating ${route}`);
 	var template = fs.readFileSync('index.html').toString();
 	react_router.run(<react_router.Route>routes.rootRoute, route, (handler, state) => {
 		var props = routes.fetchRouteProps(data, state);

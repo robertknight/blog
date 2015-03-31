@@ -4,13 +4,21 @@ import fs = require('fs');
 import path = require('path');
 import js_yaml = require('js-yaml');
 
+interface SiteAuthor {
+	name?: string;
+	photoUrl?: string;
+	twitterId?: string;
+	githubId?: string;
+}
+
 export interface SiteConfig {
 	inputDir: string;
 	outputDir: string;
-	title: string;
 	componentsDir: string;
-
 	rootUrl: string;
+	
+	title: string;
+	author: SiteAuthor;
 }
 
 export function extractSnippet(content: string) {
@@ -112,12 +120,14 @@ export interface PostListEntry {
 
 export function readConfig(dir: string) {
 	var configYaml = js_yaml.safeLoad(fs.readFileSync(dir + '/config.yml').toString());
+	var author = <SiteAuthor>configYaml.author || {};
 	var config = <SiteConfig>{
 		inputDir: dir,
 		title: <string>configYaml.title,
 		outputDir: path.resolve(`${dir}/${<string>configYaml.outputDir || '_site'}`),
 		componentsDir: path.resolve(`${dir}/components`),
-		rootUrl: <string>configYaml.rootUrl || ''
+		rootUrl: <string>configYaml.rootUrl || '',
+		author: author
 	};
 	return config;
 }
