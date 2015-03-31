@@ -3,15 +3,24 @@ import style = require('ts-style');
 
 var theme = style.create({
 	topBanner: {
-		borderBottom: '1px solid #ddd'
+		display: 'flex',
+		flexDirection: 'row',
+		alignContent: 'center',
+		borderBottom: '1px solid #ddd',
+		padding: 5,
+
+		' a': { textDecoration: 'none' }
 	},
 
 	name: {
-		fontSize: 24
+		fontSize: 20
 	},
 
 	nameSeparator: {
-		borderLeft: '1px solid #bbb'
+		display: 'inline-block',
+		borderLeft: '1px solid #bbb',
+		marginLeft: 10,
+		marginRight: 10
 	}
 
 });
@@ -25,6 +34,7 @@ export interface BannerProps {
 	name: string;
 	photoUrl: string;
 	socialLinks: SocialLinks;
+	rootUrl: string;
 }
 
 function twitterUrl(id: string) {
@@ -53,13 +63,13 @@ export class Banner extends react.Component<BannerProps, {}> {
 			socialLinks.push(react.DOM.a({
 				href: githubUrl(this.props.socialLinks.github),
 				key: 'github'
-			}),
-				'GitHub'
-			);
+			}, 'GitHub'));
 		}
 
 		return react.DOM.div(style.mixin(theme.topBanner),
-			react.DOM.span(style.mixin(theme.name)),
+			react.DOM.span(style.mixin(theme.name),
+				react.DOM.a({href: this.props.rootUrl}, this.props.name)
+			),
 			react.DOM.span(style.mixin(theme.nameSeparator)),
 			socialLinks
 		);
