@@ -56,7 +56,7 @@ class ComponentLoader implements components.Loader {
 
 function prerenderRoute(config: scanner.SiteConfig, route: string, outputDir: string, data: routes.AppDataSource) {
 	console.log(`Creating ${route}`);
-	var template = fs.readFileSync('index.html').toString();
+	var template = fs.readFileSync(path.resolve(__dirname) + '/../index.html').toString();
 	react_router.run(<react_router.Route>routes.rootRoute, route, (handler, state) => {
 		var props = routes.fetchRouteProps(data, state);
 
@@ -110,7 +110,9 @@ export function generateBlog(dir: string) {
 	// remove and re-create output dir
 	const config = readConfig(dir);
 	fs_extra.ensureDirSync(config.outputDir);
-	fs_util.cleanDir(config.outputDir);
+	fs_util.cleanDir(config.outputDir, outputPath => {
+		return path.basename(outputPath)[0] !== '.';
+	});
 	
 	// generate post and tag indexes
 	const posts = readPosts(config);
