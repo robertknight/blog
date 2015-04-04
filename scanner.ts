@@ -9,6 +9,7 @@ interface SiteAuthor {
 	photoUrl?: string;
 	twitterId?: string;
 	githubId?: string;
+	email?: string;
 }
 
 export interface SiteConfig {

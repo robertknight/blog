@@ -75,8 +75,10 @@ class DataSource implements routes.AppDataSource {
 			photoUrl: this.config.author.photoUrl,
 			socialLinks: {
 				twitter: this.config.author.twitterId,
-				github: this.config.author.githubId
-			}
+				github: this.config.author.githubId,
+				email: this.config.author.email
+			},
+			rootUrl: this.config.rootUrl + '/'
 		};
 	}
 }
@@ -127,7 +129,18 @@ export function generateBlog(dir: string) {
 	});
 
 	// copy CSS and assets
-	fs_extra.copy(path.resolve(__dirname) + '/theme.css', `${config.outputDir}/theme.css`, () => {});
+	var themeFiles = ['theme.css', 'github-white-120x120.png', 'twitter-white.png', 'email-48x38.png'];
+	var themeDir = path.resolve(__dirname) + '/theme';
+
+	themeFiles.forEach(themeFile => {
+		const src = `${themeDir}/${themeFile}`;
+		const dest = `${config.outputDir}/${themeFile}`;
+		fs_extra.copy(src, dest, (err) => {
+			if (err) {
+				console.error(`Failed to copy ${src} to ${dest}: ${err}`);
+			}
+		});
+	});
 	fs_extra.copy(dir + '/assets', `${config.outputDir}/assets`, () => {});
 }
 
