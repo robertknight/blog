@@ -125,8 +125,13 @@ var RouteF = react.createFactory(react_router.Route);
 var DefaultRouteF = react.createFactory(react_router.DefaultRoute);
 
 export var rootRoute = RouteF({name: 'home', path: '/', handler: BlogRoute},
-	RouteF({name: 'post', path: '/posts/:postId', handler: PostRoute}),
-	RouteF({name: 'tagged', path: '/posts/tagged/:tag', handler: TaggedPostsRoute}),
+	// note: The trailing slash is needed for statically generated routes
+	// where the file structure of the static content is
+	// '/route/path/index.html'.
+	// When following a link to '/route/path' the browser will convert that
+	// to '/route/path/' (note trailing slash)
+	RouteF({name: 'post', path: '/posts/:postId/?', handler: PostRoute}),
+	RouteF({name: 'tagged', path: '/posts/tagged/:tag/?', handler: TaggedPostsRoute}),
 	DefaultRouteF({handler: PostListRoute})
 );
 

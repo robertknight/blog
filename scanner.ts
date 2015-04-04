@@ -1,10 +1,9 @@
 /// <reference path="typings/tsd.d.ts" />
 
-import fs = require('fs');
 import path = require('path');
 import js_yaml = require('js-yaml');
 
-interface SiteAuthor {
+export interface SiteAuthor {
 	name?: string;
 	photoUrl?: string;
 	twitterId?: string;
@@ -40,7 +39,7 @@ export function extractSnippet(content: string) {
 export interface PostMetadata {
 	slug: string;
 	title: string;
-	date: Date;
+	date: string;
 	tags: string[];
 }
 
@@ -53,7 +52,7 @@ export function postUrl(config: SiteConfig, post: PostMetadata) {
 	return `${config.rootUrl}/posts/${post.slug}`;
 }
 
-function parsePostContent(filename: string, markdown: string) {
+export function parsePostContent(filename: string, markdown: string) {
 	var yamlMatcher = /^\s*---\n([^]*)---\n/;
 	var yamlMatch = markdown.match(yamlMatcher);
 	if (!yamlMatch) {
@@ -73,26 +72,13 @@ function parsePostContent(filename: string, markdown: string) {
 		metadata: {
 			slug: path.basename(filename, '.md'),
 			title: metadataDoc.title,
-			date: new Date(metadataDoc.date),
+			date: metadataDoc.date,
 			tags: metadataDoc.tags.split(',').map((tag: string) => {
 				return tag.trim();
 			})
 		},
 		body: markdown.slice(yamlMatch[0].length)
 	};
-}
-
-function fetchPosts(postsDir: string) {
-	var posts: PostContent[] = [];
-	var postSourceFiles = fs.readdirSync(postsDir);
-	postSourceFiles.forEach((filename) => {
-		var postFilePath = path.join(postsDir, filename);
-		var ext = path.extname(filename);
-		if (ext === '.md') {
-			posts.push(parsePostContent(postFilePath, fs.readFileSync(postFilePath).toString()));
-		}
-	});
-	return posts;
 }
 
 export interface TagMap {
@@ -118,23 +104,3 @@ export interface PostListEntry {
 	snippetSource: string;
 	url: string;
 }
-
-export function readConfig(dir: string) {
-	var configYaml = js_yaml.safeLoad(fs.readFileSync(dir + '/config.yml').toString());
-	var author = <SiteAuthor>configYaml.author || {};
-	var config = <SiteConfig>{
-		inputDir: dir,
-		title: <string>configYaml.title,
-		outputDir: path.resolve(`${dir}/${<string>configYaml.outputDir || '_site'}`),
-		componentsDir: path.resolve(`${dir}/components`),
-		rootUrl: <string>configYaml.rootUrl || '',
-		author: author
-	};
-	return config;
-}
-
-export function readPosts(config: SiteConfig) {
-	var postsDir = config.inputDir + '/posts';
-	return fetchPosts(postsDir);
-}
-

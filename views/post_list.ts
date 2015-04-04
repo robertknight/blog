@@ -1,4 +1,5 @@
 import react = require('react');
+import react_router = require('react-router');
 import style = require('ts-style');
 
 import typography = require('../theme/typography');
@@ -58,6 +59,8 @@ export interface PostListProps {
 	posts: PostListEntry[];
 }
 
+var LinkF = react.createFactory(react_router.Link);
+
 export class PostList extends react.Component<PostListProps,{}> {
 	render() {
 		var posts = this.props.posts.map((post, index) => {
@@ -69,13 +72,13 @@ export class PostList extends react.Component<PostListProps,{}> {
 			return react.DOM.div(style.mixin(postStyles, {
 				key: post.title
 			}),
-				react.DOM.a(style.mixin(theme.postList.entry.title, {
-					href: post.url
+				LinkF(style.mixin(theme.postList.entry.title, {
+					to: post.url
 				}), post.title),
 				react.DOM.div(style.mixin(theme.postList.entry.date), post.date.toDateString()),
 				react.DOM.div(style.mixin(theme.postList.entry.snippet), post.snippet),
-				react.DOM.a(style.mixin(theme.postList.readMoreLink, {
-					href: post.url
+				LinkF(style.mixin(theme.postList.readMoreLink, {
+					to: post.url
 				}), 'Continue reading →')
 			);
 		});

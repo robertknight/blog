@@ -28,6 +28,12 @@
     },
     "mustache/mustache.d.ts": {
       "commit": "fbb8c672d56d1cfe677b81c300f8506a31e0404c"
+    },
+    "whatwg-fetch/whatwg-fetch.d.ts": {
+      "commit": "2520bce9a8a71b66e67487cbd5b33fec880b0c55"
+    },
+    "es6-promise/es6-promise.d.ts": {
+      "commit": "2520bce9a8a71b66e67487cbd5b33fec880b0c55"
     }
   }
 }

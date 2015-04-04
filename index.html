@@ -6,7 +6,10 @@
 </head>
 <body>
 	<div id="app">{{{body}}}</div>
-	<script src="{{{appScript}}}"></script>
+	<script>var appRoot = '{{appRoot}}';</script>
+	{{#bundles}}
+	<script src="{{.}}"></script>
+	{{/bundles}}
 </body>
 </html>
 
