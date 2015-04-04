@@ -2,7 +2,7 @@ import assign = require('object-assign');
 import react = require('react');
 import react_router = require('react-router');
 
-import banner_view = require('./views/banner');
+import header_view = require('./views/header');
 import post_view = require('./views/post');
 import post_list_view = require('./views/post_list');
 
@@ -10,7 +10,7 @@ export interface AppDataSource {
 	recentPosts(count: number): post_list_view.PostListEntry[];
 	taggedPosts(tag: string): post_list_view.PostListEntry[];
 	fetchPost(id: string): post_view.PostProps;
-	fetchBannerInfo(): banner_view.BannerProps;
+	fetchHeaderInfo(): header_view.HeaderProps;
 }
 
 export interface AppRouteStatic {
@@ -39,21 +39,21 @@ export function fetchRouteProps(data: AppDataSource, state: react_router.RouterS
 }
 
 interface BlogRouteProps {
-	banner: banner_view.BannerProps;
+	header: header_view.HeaderProps;
 }
 
 class BlogRoute extends react.Component<BlogRouteProps,{}> {
 	static fetchData(model: AppDataSource) {
-		var bannerInfo = model.fetchBannerInfo();
+		var headerInfo = model.fetchHeaderInfo();
 		return {
-			title: bannerInfo.name,
-			banner: bannerInfo
+			title: headerInfo.name,
+			header: headerInfo
 		}
 	}
 
 	render() {
 		return react.DOM.div({},
-			banner_view.BannerF(this.props.banner),
+			header_view.HeaderF(this.props.header),
 			react.createElement(react_router.RouteHandler, this.props)
 		);
 	}

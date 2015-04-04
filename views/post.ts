@@ -2,13 +2,11 @@ import react = require('react');
 import style = require('ts-style');
 
 import typography = require('../theme/typography');
+import shared_theme = require('../theme/shared');
 
 var theme = style.create({
 	post: {
-		maxWidth: 600,
-		paddingTop: 60,
-		marginLeft: 'auto',
-		marginRight: 'auto',
+		mixins: [shared_theme.content],
 		fontFamily: 'Ubuntu',
 
 		tagList: {

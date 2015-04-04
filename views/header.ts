@@ -2,7 +2,7 @@ import react = require('react');
 import style = require('ts-style');
 
 const TEXT_COLOR = '#eee';
-const SOCIAL_LOGO_HEIGHT = 24;
+const SOCIAL_LOGO_HEIGHT = 22;
 
 var theme = style.create({
 	topBanner: {
@@ -28,7 +28,7 @@ var theme = style.create({
 		lineHeight: SOCIAL_LOGO_HEIGHT + 'px'
 	},
 
-	nameSeparator: {
+	sectionSeparator: {
 		display: 'inline-block',
 		borderLeft: '1px solid #bbb',
 		marginLeft: 10,
@@ -58,7 +58,7 @@ export interface SocialLinks {
 	email: string;
 }
 
-export interface BannerProps {
+export interface HeaderProps {
 	name: string;
 	photoUrl: string;
 	socialLinks: SocialLinks;
@@ -77,10 +77,10 @@ function mailLink(email: string) {
 	return `mailto:${email}`;
 }
 
-/** Banner displayed at the top of the blog with author
+/** Header displayed at the top of the blog with author
   * details.
   */
-export class Banner extends react.Component<BannerProps, {}> {
+export class Header extends react.Component<HeaderProps, {}> {
 	render() {
 		var socialLinks: react.ReactNode[] = [];
 		if (this.props.socialLinks.twitter) {
@@ -112,11 +112,11 @@ export class Banner extends react.Component<BannerProps, {}> {
 			react.DOM.span(style.mixin(theme.name),
 				react.DOM.a({href: this.props.rootUrl}, this.props.name)
 			),
-			react.DOM.span(style.mixin(theme.nameSeparator)),
+			react.DOM.span(style.mixin(theme.sectionSeparator)),
 			socialLinks
 		);
 	}
 }
 
-export var BannerF = react.createFactory(Banner);
+export var HeaderF = react.createFactory(Header);
 

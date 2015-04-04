@@ -69,7 +69,7 @@ class DataSource implements routes.AppDataSource {
 		}
 	}
 
-	fetchBannerInfo() {
+	fetchHeaderInfo() {
 		return {
 			name: this.config.author.name,
 			photoUrl: this.config.author.photoUrl,
