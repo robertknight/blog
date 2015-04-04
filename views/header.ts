@@ -81,36 +81,36 @@ function mailLink(email: string) {
   * details.
   */
 export class Header extends react.Component<HeaderProps, {}> {
+	private imageUrl(name: string) {
+		return `${this.props.rootUrl}/theme/${name}.png`;
+	}
+
+	private renderSocialLink(id: string, url: string, image: string) {
+		const imgSrc = `${this.props.rootUrl}/theme/images/${image}.png`;
+		return react.DOM.a({
+			href: url,
+			key: id
+		}, react.DOM.img(style.mixin(theme.socialLinkImage, {src: imgSrc})));
+	}
+
 	render() {
 		var socialLinks: react.ReactNode[] = [];
 		if (this.props.socialLinks.twitter) {
-			socialLinks.push(react.DOM.a({
-				href: twitterUrl(this.props.socialLinks.twitter),
-				key: 'twitter'
-			},
-				react.DOM.img(style.mixin(theme.socialLinkImage, {src: '/twitter-white.png'}))
-			));
+			socialLinks.push(this.renderSocialLink('twitter', twitterUrl(this.props.socialLinks.twitter),
+			  'twitter-white'));
 		}
 		if (this.props.socialLinks.github) {
-			socialLinks.push(react.DOM.a({
-				href: githubUrl(this.props.socialLinks.github),
-				key: 'github'
-			},
-				react.DOM.img(style.mixin(theme.socialLinkImage, {src: '/github-white-120x120.png'}))
-			));
+			socialLinks.push(this.renderSocialLink('github', githubUrl(this.props.socialLinks.github),
+			  'github-white-120x120'));
 		}
 		if (this.props.socialLinks.email) {
-			socialLinks.push(react.DOM.a({
-				href: mailLink(this.props.socialLinks.email),
-				key: 'email'
-			},
-				react.DOM.img(style.mixin(theme.socialLinkImage, {src: '/email-48x38.png'}))
-			));
+			socialLinks.push(this.renderSocialLink('email', mailLink(this.props.socialLinks.email),
+			  'email-48x38'));
 		}
 
 		return react.DOM.div(style.mixin(theme.topBanner),
 			react.DOM.span(style.mixin(theme.name),
-				react.DOM.a({href: this.props.rootUrl}, this.props.name)
+				react.DOM.a({href: this.props.rootUrl + '/'}, this.props.name)
 			),
 			react.DOM.span(style.mixin(theme.sectionSeparator)),
 			socialLinks

@@ -78,7 +78,7 @@ class DataSource implements routes.AppDataSource {
 				github: this.config.author.githubId,
 				email: this.config.author.email
 			},
-			rootUrl: this.config.rootUrl + '/'
+			rootUrl: this.config.rootUrl
 		};
 	}
 }
@@ -94,7 +94,7 @@ function prerenderRoute(config: scanner.SiteConfig, route: string, outputDir: st
 		var html = mustache.render(template, {
 			title: props.title,
 			body: body,
-			appTheme: `${config.rootUrl}/theme.css`,
+			appTheme: `${config.rootUrl}/theme/theme.css`,
 			appScript: `${config.rootUrl}/app.js`
 		});
 		fs_extra.ensureDirSync(outputDir);
@@ -128,19 +128,22 @@ export function generateBlog(dir: string) {
 		prerenderRoute(config, route, config.outputDir + route, dataSource);
 	});
 
-	// copy CSS and assets
-	var themeFiles = ['theme.css', 'github-white-120x120.png', 'twitter-white.png', 'email-48x38.png'];
-	var themeDir = path.resolve(__dirname) + '/theme';
+	// copy theme files
+	var themeFiles = ['theme.css', 'images']
+	var themeInputDir = path.resolve(__dirname) + '/theme';
+	var themeOutputDir = `${config.outputDir}/theme`;
 
 	themeFiles.forEach(themeFile => {
-		const src = `${themeDir}/${themeFile}`;
-		const dest = `${config.outputDir}/${themeFile}`;
+		const src = `${themeInputDir}/${themeFile}`;
+		const dest = `${themeOutputDir}/${themeFile}`;
 		fs_extra.copy(src, dest, (err) => {
 			if (err) {
 				console.error(`Failed to copy ${src} to ${dest}: ${err}`);
 			}
 		});
 	});
+
+	// copy site assets
 	fs_extra.copy(dir + '/assets', `${config.outputDir}/assets`, () => {});
 }
 
