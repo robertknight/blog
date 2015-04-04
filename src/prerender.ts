@@ -56,7 +56,7 @@ class ComponentLoader implements components.Loader {
 
 function prerenderRoute(config: scanner.SiteConfig, route: string, outputDir: string, data: routes.AppDataSource) {
 	console.log(`Creating ${route}`);
-	var template = fs.readFileSync(path.resolve(__dirname) + '/../index.html').toString();
+	var template = fs.readFileSync(path.resolve(__dirname) + '/../src/index.html').toString();
 	react_router.run(<react_router.Route>routes.rootRoute, route, (handler, state) => {
 		var props = routes.fetchRouteProps(data, state);
 
