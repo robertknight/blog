@@ -53,7 +53,14 @@ export function postUrl(config: SiteConfig, post: PostMetadata) {
 }
 
 export function parsePostContent(filename: string, markdown: string) {
-	var yamlMatcher = /^\s*---\n([^]*)---\n/;
+	// extract the front-matter from the top of the page.
+	// This is a section of the form:
+	// 
+	// ---
+	// <YAML config>
+	// ---
+	// 
+	var yamlMatcher = /^\s*---\n([^]*?)---\n/;
 	var yamlMatch = markdown.match(yamlMatcher);
 	if (!yamlMatch) {
 		throw new Error('Post is missing YAML metadata section');

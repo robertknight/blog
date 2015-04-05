@@ -20,7 +20,7 @@ build/theme/theme.css: build/theme build/cli.js src/theme/base.css
 	cat build/app-theme.css >> $@
 
 demo: build/cli.js build/theme build/theme/theme.css $(client_bundle)
-	node build/cli.js test-blog
+	node build/cli.js example-blog
 
 clean:
 	rm -rf build

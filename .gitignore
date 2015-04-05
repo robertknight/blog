@@ -3,3 +3,4 @@
 typings/DefinitelyTyped
 node_modules/
 build/
+example-blog/_site
