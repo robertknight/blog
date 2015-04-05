@@ -12,13 +12,13 @@ The input is structured as follows:
 
 <pre>
 your-blog/
-  config.yml 
-  posts/
+  _config.yml
+  _posts/
     first-post.md
 	another-post.md
 </pre>
 
-The `config.yml` file contains global settings and defaults
+The `_config.yml` file contains global settings and defaults
 for the site.
 
 Posts are written in [markdown](http://daringfireball.net/projects/markdown/syntax)

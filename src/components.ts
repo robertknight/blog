@@ -10,7 +10,6 @@ export interface Loader {
 
 export function convertMarkdownToReactJs(content: string) {
 	var jsx = marked(content.toString(), {}).replace(/\n/g, ' ');
-	console.log('JSX output', jsx);
 	jsx = '<div>' + jsx + '</div>';
 	var js = 'return ' + react_tools.transform(jsx);
 	return js;

@@ -75,7 +75,7 @@ function prerenderRoute(config: scanner.SiteConfig, route: string, outputDir: st
 }
 
 function readConfig(dir: string) {
-	const configPath = dir + '/config.yml';
+	const configPath = dir + '/_config.yml';
 	if (!fs.existsSync(configPath)) {
 		throw new Error(`No config.yml file found in ${dir}`);
 	}
@@ -94,7 +94,7 @@ function readConfig(dir: string) {
 }
 
 function readPosts(config: scanner.SiteConfig) {
-	var postsDir = config.inputDir + '/posts';
+	var postsDir = config.inputDir + '/_posts';
 	return fetchPosts(postsDir);
 }
 
