@@ -4,6 +4,8 @@ This is a static site blog engine for my blog.
 
 Inspired by jlongster's [Most Over-Engineered Blog Ever](http://jlongster.com/Presenting-The-Most-Over-Engineered-Blog-Ever), this is essentially a playground for me to experiment with React and related web tech.
 
+If you are looking for a more serious project for generating static sites that can be deployed on GitHub, have a look at [StaticGen](https://www.staticgen.com/).
+
 ## Usage
 
 The generator includes an example blog which shows the basic structure
