@@ -19,6 +19,7 @@
   "dependencies": {
     "commander": "^2.6.0",
     "fs-extra": "^0.16.3",
+    "highlight.js": "^8.5.0",
     "js-yaml": "^3.2.7",
     "marked": "^0.3.3",
     "mustache": "^2.0.0",

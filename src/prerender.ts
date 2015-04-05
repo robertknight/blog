@@ -13,6 +13,10 @@ import post_view = require('./views/post');
 import routes = require('./routes');
 import scanner = require('./scanner');
 
+// name of the style file to use for syntax highlighting
+// from highlight.js' styles/ dir
+const CODE_THEME = 'zenburn.css';
+
 class ComponentLoader implements components.Loader {
 	private componentsDir: string;
 
@@ -67,6 +71,7 @@ function prerenderRoute(config: scanner.SiteConfig, route: string, outputDir: st
 			body: body,
 			appTheme: `${config.rootUrl}/theme/theme.css`,
 			appRoot: config.rootUrl,
+			codeTheme: `${config.rootUrl}/theme/${CODE_THEME}`,
 			bundles: ['vendor','client','components'].map(name => `${config.rootUrl}/${name}.bundle.js`)
 		});
 		fs_extra.ensureDirSync(outputDir);
@@ -162,13 +167,17 @@ export function generateBlog(dir: string) {
 	});
 
 	// copy theme files
-	const themeFiles = ['theme.css', 'images']
+	const codeTheme = `${path.resolve(__dirname)}/../node_modules/highlight.js/styles/${CODE_THEME}`;
+	const themeFiles = ['theme.css', 'images', codeTheme];
 	const themeInputDir = path.resolve(__dirname) + '/theme';
 	const themeOutputDir = `${config.outputDir}/theme`;
 
 	themeFiles.forEach(themeFile => {
-		const src = `${themeInputDir}/${themeFile}`;
-		const dest = `${themeOutputDir}/${themeFile}`;
+		let src = themeFile;
+		if (fs_util.isRelative(themeFile)) {
+			src = `${themeInputDir}/${themeFile}`;
+		}
+		const dest = `${themeOutputDir}/${path.basename(themeFile)}`;
 		fs_extra.copy(src, dest, (err) => {
 			if (err) {
 				console.error(`Failed to copy ${src} to ${dest}: ${err}`);

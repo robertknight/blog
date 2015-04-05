@@ -12,4 +12,6 @@ export function cleanDir(dir: string, filter?: (path: string) => boolean) {
 	});
 }
 
-
+export function isRelative(filePath: string) {
+	return path.normalize(filePath) !== path.resolve(filePath);
+}

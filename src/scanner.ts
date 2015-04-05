@@ -27,7 +27,7 @@ export function extractSnippet(content: string) {
 	var paragraphs = content.split(/\n\s*\n/);
 	var paragraphIndex = 0;
 	while (snippet.length < idealLength && paragraphIndex < paragraphs.length) {
-		if (snippet.length == 0) {
+		if (snippet.length > 0) {
 			snippet += '\n\n';
 		}
 		snippet += paragraphs[paragraphIndex];

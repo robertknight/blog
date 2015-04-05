@@ -1,6 +1,6 @@
 ---
 title: Using this blog generator
-date: 2015-02-28
+date: 2015-04-05
 tags: tutorials
 ---
 
@@ -10,13 +10,13 @@ blog generator.
 
 The input is structured as follows:
 
-<pre>
+```
 your-blog/
   _config.yml
   _posts/
     first-post.md
 	another-post.md
-</pre>
+```
 
 The `_config.yml` file contains global settings and defaults
 for the site.

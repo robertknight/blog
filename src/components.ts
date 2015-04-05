@@ -1,3 +1,4 @@
+import highlights = require('highlight.js');
 import marked = require('marked');
 import path = require('path');
 import react = require('react');
@@ -9,10 +10,35 @@ export interface Loader {
 }
 
 export function convertMarkdownToReactJs(content: string) {
-	var jsx = marked(content.toString(), {}).replace(/\n/g, ' ');
-	jsx = '<div>' + jsx + '</div>';
-	var js = 'return ' + react_tools.transform(jsx);
-	return js;
+	const markedOptions = {
+		highlight: function(code: string, lang: string) {
+			// add the 'hljs' class for use with the current highlights.js
+			// theme
+			let markedUpCode = `<div class="hljs">${highlights.highlightAuto(code).value}</div>`;
+
+			// the JSX transform will lose new lines in <pre> blocks,
+			// so we replace these with line-break tags up-front
+			markedUpCode = markedUpCode.replace(/\n/g, '<br/>');
+
+			return markedUpCode;
+		}
+	};
+	let jsx = marked(content.toString(), markedOptions)
+	  .replace(/\n/g, ' ')
+
+	  // escape chars which are specially interpreted by
+	  // JSX
+	  .replace(/\{/g, '&#123;')
+	  .replace(/\}/g, '&#125;')
+
+	  // replace 'class' attributes added by marked with the 'className'
+	  // prop which JSX/React recognize instead
+	  .replace(/class=/g, 'className=');
+
+	// wrap content in a root tag to make it valid JSX
+	jsx = `<div>${jsx}</div>`;
+
+	return `return ${react_tools.transform(jsx)}`;
 }
 
 function requiredComponentNames(contentSource: string) {
