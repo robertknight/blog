@@ -1,8 +1,11 @@
 import react = require('react');
+import react_router = require('react-router');
 import style = require('ts-style');
 
 const TEXT_COLOR = '#eee';
 const SOCIAL_LOGO_HEIGHT = 22;
+
+const LinkF = react.createFactory(react_router.Link);
 
 var theme = style.create({
 	topBanner: {
@@ -110,7 +113,7 @@ export class Header extends react.Component<HeaderProps, {}> {
 
 		return react.DOM.div(style.mixin(theme.topBanner),
 			react.DOM.span(style.mixin(theme.name),
-				react.DOM.a({href: this.props.rootUrl + '/'}, this.props.name)
+				LinkF({to: this.props.rootUrl + '/'}, this.props.name)
 			),
 			react.DOM.span(style.mixin(theme.sectionSeparator)),
 			socialLinks

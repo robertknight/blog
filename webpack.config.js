@@ -4,6 +4,8 @@ var webpack = require('webpack');
 
 var buildDir = __dirname + '/build';
 
+// generates a JavaScript file which requires all of the
+// components that blog posts/pages might use
 function generateComponentCatalog(componentsDir) {
 	var catalogPath = componentsDir + '/catalog.js';
 	var catalogSrc = [];
@@ -21,7 +23,17 @@ function generateComponentCatalog(componentsDir) {
 	return catalogPath;
 }
 
+// lists the NPM dependencies required by the client app.
+function listVendorDeps() {
+	var GENERATOR_ONLY_DEPS = ['commander', 'fs-extra', 'mustache'];
+	var npmDeps = JSON.parse(fs.readFileSync('package.json').toString()).dependencies;
+	return Object.keys(npmDeps).filter(function(dep) {
+		return GENERATOR_ONLY_DEPS.indexOf(dep) == -1;
+	});
+}
+
 var catalogPath = generateComponentCatalog(buildDir + '/components');
+var vendorDeps = listVendorDeps();
 
 module.exports = {
 	context: __dirname + '/build',
@@ -31,7 +43,7 @@ module.exports = {
 	entry: {
 		client: './client',
 		components: [catalogPath],
-		vendor: ['react']
+		vendor: vendorDeps
 	},
 	output: {
 		path: __dirname + '/build',
@@ -45,6 +57,12 @@ module.exports = {
 	plugins: [
 		new webpack.optimize.CommonsChunkPlugin(
 		  'vendor', 'vendor.bundle.js'
-		)
+		),
+		new webpack.optimize.UglifyJsPlugin({
+		  compress: {
+			  warnings: false
+		  },
+		  test: /vendor.bundle.js/
+		})
 	]
 };

@@ -1,4 +1,5 @@
 import react = require('react');
+import react_router = require('react-router');
 import style = require('ts-style');
 
 import typography = require('../theme/typography');
@@ -84,13 +85,14 @@ class DisqusCommentList extends react.Component<DisqusProps,{}> {
 	}
 }
 
-var DisqusCommentListF = react.createFactory(DisqusCommentList);
+const DisqusCommentListF = react.createFactory(DisqusCommentList);
+const LinkF = react.createFactory(react_router.Link);
 
 export class Post extends react.Component<PostProps,{}> {
 	render() {
 		return react.DOM.div(style.mixin(theme.post),
-		  react.DOM.a(style.mixin(theme.post.title, {
-			  href: this.props.url
+		  LinkF(style.mixin(theme.post.title, {
+			  to: this.props.url
 		  }), this.props.title),
 		  react.DOM.div(style.mixin(theme.post.date), this.props.date.toDateString()),
 		  this.renderTagList(),
@@ -104,8 +106,8 @@ export class Post extends react.Component<PostProps,{}> {
 	private renderTagList() {
 		return react.DOM.div(style.mixin(theme.post.tagList),
 			this.props.tags.map((tagEntry) => {
-				return react.DOM.a(style.mixin(theme.post.tagList.tag, {
-					href: tagEntry.indexUrl,
+				return LinkF(style.mixin(theme.post.tagList.tag, {
+					to: tagEntry.indexUrl,
 					key: `tag-${tagEntry.tag}`,
 				}), tagEntry.tag);
 			})

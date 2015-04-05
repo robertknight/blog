@@ -1,7 +1,7 @@
 {
   "name": "robertknight.github.io",
   "version": "0.1.0",
-  "description": "Static site blog built with React",
+  "description": "An isomorphic static site generator built with React",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -13,11 +13,10 @@
   "author": "Robert Knight <robertknight@gmail.com>",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/robertknight/react-blog/issues"
+    "url": "https://github.com/robertknight/react/issues"
   },
   "homepage": "https://github.com/robertknight/blog",
   "dependencies": {
-    "babel": "^4.6.1",
     "commander": "^2.6.0",
     "fs-extra": "^0.16.3",
     "js-yaml": "^3.2.7",

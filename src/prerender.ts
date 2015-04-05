@@ -75,9 +75,14 @@ function prerenderRoute(config: scanner.SiteConfig, route: string, outputDir: st
 }
 
 function readConfig(dir: string) {
-	var configYaml = js_yaml.safeLoad(fs.readFileSync(dir + '/config.yml').toString());
-	var author = <scanner.SiteAuthor>configYaml.author || {};
-	var config = <scanner.SiteConfig>{
+	const configPath = dir + '/config.yml';
+	if (!fs.existsSync(configPath)) {
+		throw new Error(`No config.yml file found in ${dir}`);
+	}
+
+	const configYaml = js_yaml.safeLoad(fs.readFileSync(configPath).toString());
+	const author = <scanner.SiteAuthor>configYaml.author || {};
+	const config = <scanner.SiteConfig>{
 		inputDir: dir,
 		title: <string>configYaml.title,
 		outputDir: path.resolve(`${dir}/${<string>configYaml.outputDir || '_site'}`),

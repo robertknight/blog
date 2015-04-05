@@ -3,12 +3,13 @@
 	<meta charset="UTF-8">
 	<title>{{title}}</title>
 	<link rel="stylesheet" href="{{{appTheme}}}">
+	<meta name="viewport" content="width=device-width">
 </head>
 <body>
 	<div id="app">{{{body}}}</div>
 	<script>var appRoot = '{{appRoot}}';</script>
 	{{#bundles}}
-	<script src="{{.}}"></script>
+	<script defer src="{{.}}"></script>
 	{{/bundles}}
 </body>
 </html>
