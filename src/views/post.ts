@@ -84,8 +84,19 @@ class DisqusCommentList extends react.Component<DisqusProps,{}> {
 		);
 	}
 }
-
 const DisqusCommentListF = react.createFactory(DisqusCommentList);
+
+class HypothesisEmbed extends react.Component<{},{}> {
+  render() {
+    var scriptSrc = 'https://hypothes.is/embed.js';
+    return react.DOM.script({
+      src: scriptSrc,
+      async: true,
+    });
+  }
+}
+const HypothesisEmbedF = react.createFactory(HypothesisEmbed);
+
 const LinkF = react.createFactory(react_router.Link);
 
 export class Post extends react.Component<PostProps,{}> {
@@ -99,7 +110,7 @@ export class Post extends react.Component<PostProps,{}> {
 		  react.DOM.div(style.mixin(theme.post.content),
 			  this.props.children
 		  ),
-		  DisqusCommentListF({shortName: 'robertknight'})
+      HypothesisEmbedF()
 		);
 	}
 
