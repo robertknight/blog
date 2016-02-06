@@ -113,7 +113,14 @@ function fetchPosts(postsDir: string) {
 			posts.push(scanner.parsePostContent(postFilePath, fs.readFileSync(postFilePath).toString()));
 		}
 	});
-	return posts;
+	return posts.sort((a, b) => {
+    // sort the posts in descending date order,
+    // assuming that the post dates are formatted
+    // YYYY-MM-DD so that the lexicographical and
+    // chronological orders are the same
+    const [aDate, bDate] = [a.metadata.date, b.metadata.date];
+    return aDate > bDate ? -1 : 1;
+  });
 }
 
 export function generateBlog(dir: string) {

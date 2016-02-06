@@ -31,7 +31,7 @@ export class DataSource implements routes.AppDataSource {
 
 		return {
 			title: post.metadata.title,
-			date: new Date(post.metadata.date),
+			date: post.metadata.date,
 			snippet: react.createElement(snippetComponent),
 			url: scanner.postUrl(this.config, post.metadata)
 		};
@@ -42,7 +42,7 @@ export class DataSource implements routes.AppDataSource {
 		var postComponent = components.reactComponentFromSource(contentJs, this.componentLoader);
 		return {
 			title: post.metadata.title,
-			date: new Date(post.metadata.date),
+			date: post.metadata.date,
 			tags: post.metadata.tags.map(tag => {
 				return {
 					tag: tag,
@@ -50,7 +50,7 @@ export class DataSource implements routes.AppDataSource {
 				}
 			}),
 			url: scanner.postUrl(this.config, post.metadata),
-			children: [react.createElement(postComponent, {key:'post'})]
+			children: [react.createElement(postComponent as any, {key:'post'})]
 		};
 	}
 

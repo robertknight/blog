@@ -39,7 +39,7 @@ export function extractSnippet(content: string) {
 export interface PostMetadata {
 	slug: string;
 	title: string;
-	date: string;
+	date: Date;
 	tags: string[];
 }
 

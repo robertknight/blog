@@ -20,8 +20,6 @@ class Image extends react.Component<ImageProps, ImageState> {
 
 		this.state = {
 			zoomed: false,
-			zoomedStyle: {},
-			containerStyle: {}
 		};
 	}
 
