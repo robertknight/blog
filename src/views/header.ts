@@ -122,4 +122,3 @@ export class Header extends react.Component<HeaderProps, {}> {
 }
 
 export var HeaderF = react.createFactory(Header);
-

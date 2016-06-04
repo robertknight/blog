@@ -1,5 +1,6 @@
 import assign = require('object-assign');
 import react = require('react');
+import react_dom = require('react-dom');
 
 interface ImageProps {
 	src?: string;
@@ -24,7 +25,7 @@ class Image extends react.Component<ImageProps, ImageState> {
 	}
 
 	componentDidMount() {
-		var image = <HTMLImageElement>react.findDOMNode(this.refs['img']);
+		var image = <HTMLImageElement>react_dom.findDOMNode(this.refs['img']);
 		var zoomedWidth = Math.min(screen.width, image.naturalWidth);
 		var scale = zoomedWidth / image.width;
 		var zoomedHeight = image.width * scale;

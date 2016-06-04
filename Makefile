@@ -1,14 +1,12 @@
 NODE_BIN=./node_modules/.bin
-TS_OPTS=--noEmitOnError --noImplicitAny -m commonjs --target ES5
 
-app_srcs=$(wildcard src/*.ts) $(wildcard src/views/*.ts) $(wildcard src/components/*.ts)
-theme_srcs=$(wildcard src/theme/*)
+theme_srcs=$(wildcard src/theme/* src/theme/images/*)
 client_bundle=build/client.bundle.js
 
 all: demo
 
 build/cli.js: $(app_srcs) $(theme_srcs)
-	${NODE_BIN}/tsc ${TS_OPTS} --outDir build $(app_srcs)
+	${NODE_BIN}/tsc
 	cp -R src/theme build/
 
 $(client_bundle): build/cli.js webpack.config.js

@@ -17,20 +17,22 @@ export interface AppRouteStatic {
 	fetchData?(model: AppDataSource, params: Object): Object;
 }
 
-export function fetchRouteProps(data: AppDataSource, state: react_router.RouterState) {
+export function fetchRouteProps(data: AppDataSource,
+	renderProps: react_router.RouteComponentProps<Object,{}>) {
+		
 	// gather all of the data that this route requires
 	var routeData = {
-		params: state.params,
+		params: renderProps.params,
 		title: ''
 	};
 
-	state.routes.forEach(route => {
-		var handler: AppRouteStatic = (<any>route).handler;
+	renderProps.routes.forEach(route => {
+		var handler: AppRouteStatic = route.component;
 		if (handler.fetchData) {
 			// currently assumes that fetchData() returns a result
 			// immediately. In future we may want to expand this
 			// to allow promises
-			var result = handler.fetchData(data, state.params);
+			var result = handler.fetchData(data, renderProps.params);
 			assign(routeData, result);
 		}
 	});
@@ -54,15 +56,16 @@ class BlogRoute extends react.Component<BlogRouteProps,{}> {
 	render() {
 		return react.DOM.div({},
 			header_view.HeaderF(this.props.header),
-			react.createElement(react_router.RouteHandler, this.props)
+			this.props.children
 		);
 	}
 }
 
-interface PostRouteProps extends react_router.RouteProp {
-	params: {
-		postId: string;
-	};
+interface PostRouteParams {
+	postId: string;
+}
+
+interface PostRouteProps extends react_router.RouteComponentProps<PostRouteParams,{}> {
 	post: post_view.PostProps;
 }
 
@@ -81,7 +84,7 @@ class PostRoute extends react.Component<PostRouteProps,{}> {
 	}
 }
 
-interface PostListRouteProps extends react_router.RouteProp {
+interface PostListRouteProps extends react_router.RouteComponentProps<{},{}> {
 	posts: post_list_view.PostListEntry[];
 }
 
@@ -121,17 +124,11 @@ class TaggedPostsRoute extends react.Component<TaggedPostsRouteProps,{}> {
 	}
 }
 
+var IndexRouteF = react.createFactory(react_router.IndexRoute);
 var RouteF = react.createFactory(react_router.Route);
-var DefaultRouteF = react.createFactory(react_router.DefaultRoute);
 
-export var rootRoute = RouteF({name: 'home', path: '/', handler: BlogRoute},
-	// note: The trailing slash is needed for statically generated routes
-	// where the file structure of the static content is
-	// '/route/path/index.html'.
-	// When following a link to '/route/path' the browser will convert that
-	// to '/route/path/' (note trailing slash)
-	RouteF({name: 'post', path: '/posts/:postId/?', handler: PostRoute}),
-	RouteF({name: 'tagged', path: '/posts/tagged/:tag/?', handler: TaggedPostsRoute}),
-	DefaultRouteF({handler: PostListRoute})
+export var rootRoute = RouteF({path: '/', component: BlogRoute},
+	RouteF({path: '/posts/:postId', component: PostRoute}),
+	RouteF({path: '/posts/tagged/:tag', component: TaggedPostsRoute}),
+	IndexRouteF({component: PostListRoute})
 );
-

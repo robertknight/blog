@@ -1,5 +1,3 @@
-/// <reference path="../typings/tsd.d.ts" />
-
 import commander = require('commander');
 import path = require('path');
 

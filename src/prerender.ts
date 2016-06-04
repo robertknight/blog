@@ -1,9 +1,11 @@
+import assign = require('object-assign');
 import fs = require('fs');
 import fs_extra = require('fs-extra');
 import js_yaml = require('js-yaml');
 import mustache = require('mustache');
 import path = require('path');
 import react = require('react');
+import react_dom_server = require('react-dom/server');
 import react_router = require('react-router');
 
 import components = require('./components');
@@ -61,13 +63,27 @@ class ComponentLoader implements components.Loader {
 function prerenderRoute(config: scanner.SiteConfig, route: string, outputDir: string, data: routes.AppDataSource) {
 	console.log(`Creating ${route}`);
 	var template = fs.readFileSync(path.resolve(__dirname) + '/../src/index.html').toString();
-	react_router.run(<react_router.Route>routes.rootRoute, route, (handler, state) => {
-		var props = routes.fetchRouteProps(data, state);
 
-		// render route
-		var body = react.renderToString(react.createElement(handler, props));
+	react_router.match({routes: routes.rootRoute, location: route}, (err, location, matchState) => {
+		if (err) {
+			console.log(`Failed to render route ${location}:`, err);
+			throw err;
+		}
+
+		var renderProps: ReactRouter.RouterContextProps = assign({}, matchState) as any;
+		var routeProps = routes.fetchRouteProps(data, matchState);
+
+		(renderProps as any).createElement = (type: any, props: any, ...children: any[]) => {
+			var mergedProps = assign({}, routeProps, props);
+			return react.createElement(type, mergedProps, ...children);
+		};
+
+		var body = react_dom_server.renderToString(
+			react.createElement(react_router.RouterContext, renderProps as any)
+		);
+
 		var html = mustache.render(template, {
-			title: props.title,
+			title: routeProps.title,
 			body: body,
 			appTheme: `${config.rootUrl}/theme/theme.css`,
 			appRoot: config.rootUrl,
@@ -130,7 +146,7 @@ export function generateBlog(dir: string) {
 	fs_util.cleanDir(config.outputDir, outputPath => {
 		return path.basename(outputPath)[0] !== '.';
 	});
-	
+
 	// generate post and tag indexes
 	const posts = readPosts(config);
 	const tags = scanner.generateTagMap(posts);
@@ -195,4 +211,3 @@ export function generateBlog(dir: string) {
 	// copy site assets
 	fs_extra.copy(dir + '/assets', `${config.outputDir}/assets`, () => {});
 }
-

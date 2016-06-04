@@ -1,5 +1,3 @@
-/// <reference path="../typings/tsd.d.ts" />
-
 import react = require('react');
 import react_router = require('react-router');
 
@@ -16,10 +14,12 @@ function init(payload: SiteDataJson) {
 	let appData = new data_source.DataSource(componentLoader, jsonData.config, jsonData.posts, jsonData.tags);
 
 	var appElement = document.getElementById('app');
-	react_router.run(<react_router.Route>routes.rootRoute, react_router.HistoryLocation, (handler, state) => {
-		var props = routes.fetchRouteProps(appData, state);
-		react.render(react.createElement(handler, props), appElement);
-	});
+
+// FIXME
+//	react_router.run(<react_router.Route>routes.rootRoute, react_router.HistoryLocation, (handler, state) => {
+//		var props = routes.fetchRouteProps(appData, state);
+//		react.render(react.createElement(handler, props), appElement);
+//	});
 }
 
 interface SiteDataJson {
@@ -48,6 +48,9 @@ class ComponentLoader implements components.Loader {
 	}
 }
 
+/*
+FIXME - Re-implement client-side rendering
+
 declare var appRoot: string;
 window.fetch(`${appRoot}/data.json`).then(res => {
 	return res.json();
@@ -60,6 +63,4 @@ window.fetch(`${appRoot}/data.json`).then(res => {
 	}
 
 	init(<SiteDataJson><any>json);
-});
-
-
+});*/

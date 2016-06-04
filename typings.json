@@ -1,0 +1,18 @@
+{
+  "dependencies": {
+    "object-assign": "registry:npm/object-assign#4.0.1+20160301180549"
+  },
+  "globalDependencies": {
+    "commander": "registry:dt/commander#2.3.0+20160317120654",
+    "fs-extra": "registry:dt/fs-extra#0.0.0+20160319124112",
+    "highlightjs": "registry:dt/highlightjs#9.1.0+20160317120654",
+    "js-yaml": "registry:dt/js-yaml#3.5.2+20160316171810",
+    "marked": "registry:dt/marked#0.0.0+20160325085301",
+    "mustache": "registry:dt/mustache#0.8.2+20160316155526",
+    "node": "registry:env/node#4.0.0+20160507210304",
+    "react": "registry:dt/react#0.14.0+20160602151522",
+    "react-dom": "registry:dt/react-dom#0.14.0+20160412154040",
+    "react-router": "registry:dt/react-router#2.0.0+20160501155536",
+    "react-router/history": "registry:dt/react-router/history#2.0.0+20160602154905"
+  }
+}
