@@ -78,7 +78,7 @@ function prerenderRoute(config: scanner.SiteConfig, route: string, outputDir: st
 			return react.createElement(type, mergedProps, ...children);
 		};
 
-		var body = react_dom_server.renderToString(
+		var body = react_dom_server.renderToStaticMarkup(
 			react.createElement(react_router.RouterContext, renderProps as any)
 		);
 
@@ -176,18 +176,6 @@ export function generateBlog(dir: string) {
 	};
 	const routeDataFile = `${config.outputDir}/data.json`;
 	fs.writeFileSync(routeDataFile, JSON.stringify(routeData, null, 2));
-
-	// copy app bundles
-	const bundles = ['vendor','client','components'];
-	bundles.forEach(bundle => {
-		const bundleSrc = `${path.resolve(__dirname)}/${bundle}.bundle.js`;
-		const bundleDest =`${config.outputDir}/${bundle}.bundle.js`;
-		fs_extra.copy(bundleSrc, bundleDest, err => {
-			if (err) {
-				console.error(`Failed to copy client app: ${err}`);
-			}
-		});
-	});
 
 	// copy theme files
 	const codeTheme = `${path.resolve(__dirname)}/../node_modules/highlight.js/styles/${CODE_THEME}`;
